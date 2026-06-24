@@ -39,7 +39,8 @@ jobs:
         pip install pyspark pytest faker
 
     # Executa os testes automatizados de Engenharia de Dados
+    # mudar para false quando for para produção
     - name: Run Data Quality Tests
       run: |
-        continue-on-error: true # mudar para false quando em prod
+        continue-on-error: true  
         pytest tests/
