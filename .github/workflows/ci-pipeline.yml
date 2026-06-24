@@ -35,7 +35,7 @@ jobs:
     # Instala as dependências PySpark e PyTest
     - name: Install Dependencies
       run: |
-        python -m pip upgrade pip
+        python -m pip install --upgrade pip
         pip install pyspark pytest faker
 
     # Executa os testes automatizados de Engenharia de Dados
