@@ -41,6 +41,6 @@ jobs:
     # Executa os testes automatizados de Engenharia de Dados
     # mudar para false quando for para produção
     - name: Run Data Quality Tests
+      continue-on-error: true  
       run: |
-        continue-on-error: true  
         pytest tests/
