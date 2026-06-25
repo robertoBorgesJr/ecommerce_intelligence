@@ -18,6 +18,22 @@ O fluxo foi desenhado seguindo as melhores práticas do ecossistema Lakehouse:
 4. **Camada Gold (Analytics & Business):** Modelagem dimensional contendo tabelas de Dimensão (`dim_users_activity`), Fato (`fct_sales`) e Tabelas Agregadas (`agg_faturamento_pagamento`) otimizadas para consumo de Business Intelligence.
 
 ---
+## 🚀 Estrutura de DataOps & CI/CD
+
+Para garantir a resiliência do ecossistema e simular o fluxo de engenharia de um time de alta performance, o projeto conta com uma esteira de integração contínua robusta utilizando **GitHub Actions** e **PyTest**.
+
+### 💻 Fluxo de Trabalho e Isolamento (GitHub Flow)
+O desenvolvimento é 100% isolado através do uso de branches de feature e Pull Requests (PR). A branch `main` é protegida e só aceita novos códigos caso todas as validações automatizadas tenham sucesso.
+
+* **Ambientes Dinâmicos:** A arquitetura lê dinamicamente variáveis de ambiente (`DATABRICKS_ENVIRONMENT`). O ecossistema isola os dados em três catálogos distintos controlados via Unity Catalog: `ecommerce_dev`, `ecommerce_staging` e `ecommerce_prod`.
+* **Estratégia de Integração:** É adotado o padrão de **Squash and Merge** nos Pull Requests aprovados, mantendo o histórico de commits da branch principal limpo e estritamente linear.
+
+### 🧪 Testes Automatizados de Qualidade (Data Quality)
+A cada Pull Request aberto, um runner do GitHub Actions cria uma máquina virtual Linux isolada, inicializa uma sessão local do PySpark e executa os testes unitários estruturados com PyTest antes de liberar o código.
+
+* **Teste de Quarentena (`test_quarentena_registros_nulos`):** Valida de forma probabilística se registros que violam regras críticas de integridade (como chaves de transações nulas) estão sendo interceptados e direcionados com sucesso para a tabela de quarentena, blindando a camada Silver contra corrupção de dados.
+
+---
 
 ## 🛠️ Tecnologias e Recursos Utilizados
 
@@ -26,6 +42,8 @@ O fluxo foi desenhado seguindo as melhores práticas do ecossistema Lakehouse:
 * **Delta Lake:** Camada de armazenamento ACID com suporte a evolução de schema (`mergeSchema`).
 * **Databricks Auto Loader (`cloudFiles`):** Processamento de arquivos novos em tempo de execução com inferência assíncrona de tipos.
 * **Unity Catalog:** Governança centralizada de dados, schemas e Volumes.
+* **GitHub Actions:** Orquestração de pipelines de CI/CD para automação de testes.
+* **PyTest:** Framework de testes unitários para validação de dados em Spark local.
 * **Python Faker:** Simulação realista de dados em lote.
 
 ---
@@ -48,10 +66,17 @@ Mapeamento do faturamento acumulado e representatividade (Share %) de cada modal
 ## 📁 Estrutura do Repositório
 
 ```text
+├── .github/
+│   └── workflows/
+│       └── ci-pipeline.yml       # Automação do pipeline de CI/CD via GitHub Actions
 ├── config/
-│   └── schema_configs.ipynb      # Centralização de caminhos, checkpoints e variáveis do Unity Catalog
-├── data_generator.ipynb          # Script de simulação de dados contínuos com sazonalidade e anomalias
-├── 01_bronze_ingestion.ipynb     # Ingestão de streaming incremental via Auto Loader
-├── 02_silver_trusted.ipynb      # Deduplicação, higienização, tipagem e Quarentena de Qualidade
-├── 03_gold_modeling.ipynb        # Criação das tabelas fato, dimensão e views executivas
+│   └── schema_configs.ipynb      # Centralização de caminhos, checkpoints e variáveis dinâmicas do Unity Catalog
+├── pipeline/
+│   ├── 01_bronze_ingestion.ipynb # Ingestão de streaming incremental via Auto Loader
+│   ├── 02_silver_trusted.ipynb   # Deduplicação, higienização, tipagem e Quarentena de Qualidade
+│   └── 03_gold_modeling.ipynb    # Criação das tabelas fato, dimensão e views executivas
+├── generator/
+│   └── data_generator.ipynb      # Script de simulação de dados contínuos com sazonalidade e anomalias
+├── tests/
+│   └── test_quality.py           # Testes de qualidade com PyTest e fixtures de SparkSession
 └── README.md                     # Documentação oficial do projeto
